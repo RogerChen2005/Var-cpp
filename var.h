@@ -46,6 +46,7 @@ class var{
         var(int a){type = _VALUE;value = a;}
         var(char a){type = _VALUE;value = a;}
         var(string a){type = _VALUE;value = a;}
+        var(L_INT a){type = _VALUE;value = a;}
         var(char* a){type = _VALUE;value = a;}
         var(const char* a) { type = _VALUE; value = a; }
         var(double a){type = _VALUE;value = a;}
@@ -233,7 +234,20 @@ class var{
         }
         friend ostream & operator << (ostream& output,var x);
         friend istream & operator >> (istream& input,var &x);
+        operator int() const{return int(value);};
+        operator char() const{return char(value);};
+        friend string str(var x);
+        operator double() const{return double(value);};
+        friend L_INT lint(var x);
 };
+
+string str(var x){
+    return str(x.value);
+}
+
+L_INT lint(var x){
+    return lint(x.value);
+}
 
 _array Array(){
     _array temp;
@@ -278,10 +292,11 @@ istream & operator >> (istream& input,var &x){
 void input(const char* format,...){
     va_list ap;
     va_start(ap,format);
-    var* value = va_arg(ap,var*);
+    var* value;
     int len = strlen(format);
     int type;
     for(int i = 0;i < len;i++){
+        value = va_arg(ap,var*);
         if(format[i] == '%'){
             i++;
             while(check(format[i] == false)){
@@ -296,7 +311,7 @@ void input(const char* format,...){
                 break;}
             case 'f':
                 {double ftemp;
-                scanf("%f",&ftemp);
+                scanf("%lf",&ftemp);
                 *value = ftemp;
                 break;}
             case 's':
@@ -313,7 +328,6 @@ void input(const char* format,...){
                 break;
             }
         }
-        value = va_arg(ap,var*);
     }
     va_end(ap);
 }

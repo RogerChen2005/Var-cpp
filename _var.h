@@ -20,12 +20,12 @@ class _var{
     public:
     _var *pVar;
     void get(_var &a);
-    _var(){vtype = UNDEFINE;}
-    _var(const int i){vtype = INT;*this = i;}
-    _var(const char i){vtype = CHAR;*this = i;}
-    _var(const char* i){vtype = STR;*this = i;}
-    _var(const string i){vtype = STR;*this = i;}
-    _var(const double i){vtype = FLOAT;*this = i;}
+    _var(){vtype = UNDEFINE;pVar = NULL;}
+    _var(const int i){vtype = INT;*this = i;pVar = NULL;}
+    _var(const char i){vtype = CHAR;*this = i;pVar = NULL;}
+    _var(const char* i){vtype = STR;*this = i;pVar = NULL;}
+    _var(const string i){vtype = STR;*this = i;pVar = NULL;}
+    _var(const double i){vtype = FLOAT;*this = i;pVar = NULL;}
     virtual void changeType(short i){vtype = i;}
     void add(_var &a);
     virtual void add(int i){throw "Can't Calculate";};
@@ -182,6 +182,11 @@ class _var{
         temp /= a;
         return temp;
     }
+    operator int() const;
+    operator char() const;
+    friend string str(_var x);
+    operator double() const;
+    friend L_INT lint(_var x);
 };
 
 class Int:public _var{
@@ -245,36 +250,60 @@ class Float:public _var{
 };
 
 bool _var::operator = (const int a){
+    if(pVar != NULL){
+        delete pVar;
+        pVar = NULL;
+    }
     pVar = new Int(a);
     changeType(INT);
     return true;
 }
 
 bool _var::operator = (L_INT a){
+    if(pVar != NULL){
+        delete pVar;
+        pVar = NULL;
+    }
     pVar = new Int(a);
     changeType(INT);
     return true;
 }
 
 bool _var::operator = (const char &s){
+    if(pVar != NULL){
+        delete pVar;
+        pVar = NULL;
+    }
     pVar = new Char(s);
     changeType(CHAR);
     return true;
 }
 
 bool _var::operator = (const string &str){
+    if(pVar != NULL){
+        delete pVar;
+        pVar = NULL;
+    }
     pVar = new Str(str);
     changeType(STR);
     return true;
 }
 
 bool _var::operator = (const char *str){
+    if(pVar != NULL){
+        delete pVar;
+        pVar = NULL;
+    }
     pVar = new Str(str);
     changeType(STR);
     return true;
 }
 
 bool _var::operator = (const double &d){
+    if(pVar != NULL){
+        delete pVar;
+        pVar = NULL;
+    }
     pVar = new Float(d);
     changeType(FLOAT);
     return true;
@@ -410,6 +439,75 @@ void _var::operator /= (_var &a){
         char str[13] = "RogerChen233";
         this->pVar->div(str);
         break;
+    }
+}
+
+_var::operator int() const{
+    if(vtype == INT){
+        return pVar->igetValue().toint();
+    }
+    else if(vtype == CHAR){
+        return int(pVar->cgetValue());
+    }
+    else if(vtype == FLOAT){
+        return int(pVar->fgetValue());
+    }
+    else return 0;
+}
+
+_var::operator char() const{
+    if(vtype == CHAR){
+        return pVar->cgetValue();
+    }
+    else if(vtype == INT){
+        return char(pVar->igetValue().toint());
+    }
+    else return 0;
+}
+
+string str(_var x){
+    if(x.vtype == STR){
+        return x.pVar->sgetValue();
+    }
+    else if(x.vtype == INT){
+        return x.pVar->igetValue().tostr();
+    }
+    else if(x.vtype == CHAR){
+        string temp;
+        temp += x.pVar->cgetValue();
+        return temp;
+    }
+    else if(x.vtype == FLOAT){
+        return to_string(x.pVar->fgetValue());
+    }
+    else{
+        string roger;
+        return roger;
+    }
+}
+
+_var::operator double() const{
+    if(vtype == FLOAT){
+        return pVar->fgetValue();
+    }
+    else if(vtype == INT){
+        return double(pVar->igetValue().toint());
+    }
+    else return 0.0;
+}
+
+L_INT lint(_var x){
+    if(x.vtype == INT){
+        return x.pVar->igetValue();
+    }
+    else if(x.vtype == FLOAT){
+        L_INT temp;
+        temp = int(x.pVar->fgetValue());
+        return temp;
+    }
+    else{
+        L_INT roger;
+        return roger;
     }
 }
 

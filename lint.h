@@ -211,6 +211,31 @@ class L_INT{
         string getValue(){
             return value;
         }
+        string tostr(){
+            if(posiTive == true){
+                return value;
+            }
+            else return "-" + value;
+        }
+        int toint(){
+            int len = value.length();
+            if(len > 10){
+                if(posiTive == true){
+                    return 0x7f7f7f7f;
+                }
+                else return 2139062143 + 1;
+            }
+            else{
+                int temp = 0;
+                for(int i = 0;i < len;i++){
+                    temp = temp * 10 + value[i] - '0';
+                }
+                if(posiTive == true){
+                    return temp;
+                }
+                else return -temp;
+            }
+        }
         bool getPos(){
             return posiTive;
         }
@@ -275,6 +300,7 @@ class L_INT{
         void operator /= (int x){
             *this = *this + x;
         }
+        friend L_INT lint(char* str);
 };
 
 L_INT L_INT::operator + (L_INT x){
@@ -445,6 +471,18 @@ istream & operator >> (istream& input,L_INT &x){
     else x.setPos(true);
     x.setValue(temp);
     return input;
+}
+
+L_INT lint(char* str){
+    L_INT temp;
+    if(str[0] == '-'){
+        char str1[strlen(str)];
+        strcpy(str1,str+1);
+        temp.value += str1;
+        temp.posiTive = false;
+    }
+    else temp.value += str;
+    return temp;
 }
 
 #endif
