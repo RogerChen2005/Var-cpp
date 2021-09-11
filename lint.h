@@ -11,20 +11,29 @@
 
 using namespace std;
 
-int comp(string str1,string str2){
-    int len1 = str1.length();
-    int len2 = str2.length();
+int comp(string x,string y){
+    int len1 = x.length(), len2 = y.length();
     if(len1 > len2){
         return _BIG;
     }
-    else if(len2 > len1){
+    else if(len1 < len2){
         return _SMALL;
     }
-    else return str1.compare(str2);
+    else{
+        for(int i = 0;i < len1;i++){
+            if(x[i] == y[i]){
+                continue;
+            }
+            else if(x[i] > y[i]){
+                return _BIG;
+            }
+            else return _SMALL;
+        }
+    }
+    return _SAME;
 }
 
-string add(string str1,string str2)//
-{
+string add(string str1,string str2){
     string str;
     int len1=str1.length();
     int len2=str2.length();
@@ -52,8 +61,7 @@ string add(string str1,string str2)//
     return str;
 }
 
-string sub(string str1,string str2)
-{
+string sub(string str1,string str2){
     string str;
     int tmp=str1.length()-str2.length();
     int cf=0;
@@ -87,8 +95,7 @@ string sub(string str1,string str2)
     return str;
 }
 
-string mul(string str1,string str2)
-{
+string mul(string str1,string str2){
     string str;
     int len1=str1.length();
     int len2=str2.length();
@@ -117,61 +124,80 @@ string mul(string str1,string str2)
     return str;
 }
 
-void div(string str1,string str2,string &quotient,string &residue)
-{
-    quotient=residue="";
-    if(str2=="0")
-    {
-        quotient=residue="ERROR";
-        return;
+string div(string str1,string str2){
+    string ans,yu;
+    if(comp(str1,str2) == _SMALL){
+        ans = "0";
+        yu = str1;
+        return ans;
     }
-    if(str1=="0")
-    {
-        quotient=residue="0";
-        return;
-    }
-    int res=comp(str1,str2);
-    if(res<0)
-    {
-        quotient="0";
-        residue=str1;
-        return;
-    }
-    else if(res==0)
-    {
-        quotient="1";
-        residue="0";
-        return;
-    }
-    else
-    {
-        int len1=str1.length();
-        int len2=str2.length();
-        string tempstr;
-        tempstr.append(str1,0,len2-1);
-        for(int i=len2-1;i<len1;i++)
-        {
-            tempstr=tempstr+str1[i];
-            tempstr.erase(0,tempstr.find_first_not_of('0'));
-            if(tempstr.empty())
-              tempstr="0";
-            for(char ch='9';ch>='0';ch--)
-            {
-                string str,tmp;
-                str=str+ch;
-                tmp=mul(str2,str);
-                if(comp(tmp,tempstr)<=0)
-                {
-                    quotient=quotient+ch;
-                    tempstr=sub(tempstr,tmp);
+    string str,temp;
+    int len1 = str1.length();
+    int len2 = str2.length();
+    int cnt = 0;
+    while(cnt <= len1 - 1){
+        temp = yu;
+        int ylen = yu.length();
+        bool flag = false;
+        bool jie = false;
+        bool first = false;
+        for(int i = 0;i < len2 - ylen;i++){
+            jie = true;
+            if(cnt > len1 - 1){
+                ans += "0";
+                flag = true;
+                break;
+            }
+            temp += str1[cnt];
+            if(first){
+                ans += "0";
+            }
+            else first = true;
+            cnt++;
+        }
+        if(flag){
+            break;
+        }
+        int f1 = str2[0] - '0',f2 = temp[0] - '0';
+        if(f1 > f2 || comp(str2,temp) == _BIG){
+            if(cnt > len1 - 1){
+                int leng = temp.length();
+                ans += "0";
+                break;
+            }
+            if(jie){
+                ans += "0";
+            }
+            temp += str1[cnt];
+            f2 = f2 * 10 + temp[1] - '0';
+            cnt++;
+        }
+        int s = f2 / f1;
+        string ss = to_string(s);
+        while(true){
+            str = mul(str2,ss);
+            if(comp(temp,str) == _SMALL){
+                s -= 1;
+                ss = to_string(s);
+                continue;
+            }
+            else{
+                yu = sub(temp,str);
+                if(comp(str2,yu) == _BIG){
                     break;
                 }
             }
         }
-        residue=tempstr;
+        ans += ss;
+        if(yu == ""){
+            while(str1[cnt] == '0'){
+                cnt++;
+                ans += "0";
+            }
+        }
     }
-    quotient.erase(0,quotient.find_first_not_of('0'));
-    if(quotient.empty()) quotient="0";
+    ans.erase(0,ans.find_first_not_of('0'));
+    return ans;
 }
 
 class L_INT{
@@ -229,10 +255,32 @@ class L_INT{
         void operator *= (L_INT x){
             *this = *this * x;
         }
+        L_INT operator / (L_INT x);
+        void operator /= (L_INT x){
+            *this = *this / x;
+        }
+        L_INT operator + (int x);
+        void operator += (int x){
+            *this = *this + x;
+        }
+        L_INT operator - (int x);
+        void operator -= (int x){
+            *this = *this + x;
+        }
+        L_INT operator * (int x);
+        void operator *= (int x){
+            *this = *this + x;
+        }
+        L_INT operator / (int x);
+        void operator /= (int x){
+            *this = *this + x;
+        }
 };
 
 L_INT L_INT::operator + (L_INT x){
-    L_INT temp = *this;
+    L_INT temp;
+    temp.setValue(this->value);
+    temp.setPos(this->posiTive);
     if(x.posiTive == false){
         if(temp.posiTive == false){
             temp.value = add(x.value,temp.value);
@@ -279,32 +327,104 @@ L_INT L_INT::operator + (L_INT x){
 }
 
 L_INT L_INT::operator - (L_INT x){
-    L_INT temp = *this;
+    L_INT temp;
+    temp.setValue(this->value);
+    temp.setPos(this->posiTive);
     x.posiTive ^= 1;
     temp += x;
     return temp;
 }
 
 L_INT L_INT::operator * (L_INT x){
-    L_INT temp = *this;
+    L_INT temp;
+    temp.setValue(this->value);
+    temp.setPos(this->posiTive);
     if(temp.value == "0" || x.value == "0"){
         temp.setValue("0");
         return temp;
     }
-    if(temp.posiTive == false){
-        if(x.posiTive == true){
-            temp.setPos(false);
-        }
-        else temp.setPos(true);
-    }
-    else{
-        if(x.posiTive == true){
-            temp.setPos(true);
-        }
-        else temp.setPos(false);
-    }
+    temp.posiTive ^= x.posiTive;
+    temp.posiTive = !temp.posiTive;
     temp.setValue(mul(temp.value,x.value));
     return temp;
+}
+
+L_INT L_INT::operator / (L_INT x){
+    L_INT temp;
+    temp.setValue(this->value);
+    temp.setPos(this->posiTive);
+    temp.setValue(div(temp.getValue(),x.getValue()));
+    temp.posiTive ^= x.posiTive;
+    temp.posiTive = !temp.posiTive;
+    return temp;
+}
+
+L_INT L_INT::operator + (int x){
+    L_INT temp;
+    temp.setValue(this->value);
+    temp.setPos(this->posiTive);
+    bool isfu = false;
+    if(x < 0){
+        x = -x;
+        isfu = true;
+    }
+    L_INT xx;
+    xx.value = to_string(x);
+    if(isfu){
+        xx.posiTive = false;
+    }
+    return temp + xx;
+}
+
+L_INT L_INT::operator - (int x){
+    L_INT temp;
+    temp.setValue(this->value);
+    temp.setPos(this->posiTive);
+    bool isfu = false;
+    if(x < 0){
+        x = -x;
+        isfu = true;
+    }
+    L_INT xx;
+    xx.value = to_string(x);
+    if(isfu){
+        xx.posiTive = false;
+    }
+    return temp - xx;
+}
+
+L_INT L_INT::operator * (int x){
+    L_INT temp;
+    temp.setValue(this->value);
+    temp.setPos(this->posiTive);
+    bool isfu = false;
+    if(x < 0){
+        x = -x;
+        isfu = true;
+    }
+    L_INT xx;
+    xx.value = to_string(x);
+    if(isfu){
+        xx.posiTive = false;
+    }
+    return temp * xx;
+}
+
+L_INT L_INT::operator / (int x){
+    L_INT temp;
+    temp.setValue(this->value);
+    temp.setPos(this->posiTive);
+    bool isfu = false;
+    if(x < 0){
+        x = -x;
+        isfu = true;
+    }
+    L_INT xx;
+    xx.value = to_string(x);
+    if(isfu){
+        xx.posiTive = false;
+    }
+    return temp / xx;
 }
 
 ostream & operator << (ostream& output,L_INT x){

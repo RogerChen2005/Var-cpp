@@ -77,6 +77,16 @@ class var{
                 return false;
             }
         }
+        bool operator = (L_INT a){
+            if(type == _VALUE){
+                value = a;
+                return true;
+            }
+            else{
+                throw "This is an array";
+                return false;
+            }
+        }
         bool operator = (char a){
             if(type == _VALUE){
                 value = a;
@@ -280,8 +290,8 @@ void input(const char* format,...){
             switch (format[i])
             {
             case 'd':
-                {int dtemp;
-                scanf("%d",&dtemp);
+                {L_INT dtemp;
+                cin >> dtemp;
                 *value = dtemp;
                 break;}
             case 'f':
