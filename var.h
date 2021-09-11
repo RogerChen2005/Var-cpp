@@ -62,6 +62,9 @@ class var{
         _var& operator [] (string pos){
             return pAry->value2[pos];
         }
+        _var& operator [] (const char* pos){
+            return pAry->value2[pos];
+        }
         bool operator = (_array a){
             type = _ARRAY;
             pAry = new _array();
