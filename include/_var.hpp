@@ -6,8 +6,6 @@
 #include <iostream>
 #include "lint.hpp"
 
-using namespace std;
-
 #define UNDEFINE 0
 #define INT 1
 #define CHAR 2
@@ -21,11 +19,14 @@ class _var{
     public:
     _var *pVar;
     //void get(_var &a);
+    _var* get(){
+        return this;
+    }
     _var(){vtype = UNDEFINE;pVar = NULL;}
     _var(const int i){vtype = INT;pVar = NULL;*this = i;}
     _var(const char i){vtype = CHAR;pVar = NULL;*this = i;}
     _var(const char* i){vtype = STR;pVar = NULL;*this = i;}
-    _var(const string i){vtype = STR;pVar = NULL;*this = i;}
+    _var(const std::string i){vtype = STR;pVar = NULL;*this = i;}
     _var(const double i){vtype = FLOAT;pVar = NULL;*this = i;}
     _var(_var* i);
     virtual void changeType(short i){vtype = i;}
@@ -33,13 +34,13 @@ class _var{
     virtual void add(int i){throw "Can't Calculate";};
     virtual void add(char i){throw "Can't Calculate";};
     virtual void add(char* i){throw "Can't Calculate";};
-    virtual void add(string i){throw "Can't Calculate";};
+    virtual void add(std::string i){throw "Can't Calculate";};
     virtual void add(double i){throw "Can't Calculate";};
     virtual void add(L_INT i){throw "Can't Calculate";};
     virtual void minus(int i){throw "Can't Calculate";};
     virtual void minus(char i){throw "Can't Calculate";};
     virtual void minus(char* i){throw "Can't Calculate";};
-    virtual void minus(string i){throw "Can't Calculate";};
+    virtual void minus(std::string i){throw "Can't Calculate";};
     virtual void minus(double i){throw "Can't Calculate";};
     virtual void minus(L_INT i){throw "Can't Calculate";};
     virtual void multi(int i){throw "Can't Calculate";};
@@ -55,12 +56,12 @@ class _var{
     short getType(){return vtype;}
     virtual L_INT & igetValue(){L_INT *temp = new L_INT; return *temp;};
     virtual char cgetValue(){return 0;};
-    virtual string sgetValue(){string temp;return temp;};
+    virtual std::string sgetValue(){std::string temp;return temp;};
     virtual double fgetValue(){return 0.0;};
     bool operator = (int a);
     bool operator = (const char &s);
     bool operator = (const char* str);
-    bool operator = (const string &str);
+    bool operator = (const std::string &str);
     bool operator = (const double &a);
     bool operator = (_var a);
     bool operator = (L_INT a);
@@ -90,7 +91,7 @@ class _var{
         temp += a;
         return temp;
     }
-    _var operator + (const string a){
+    _var operator + (const std::string a){
         _var temp;
         temp = *this;
         temp += a;
@@ -111,7 +112,7 @@ class _var{
     void operator -= (const int a){this->pVar->minus(a);}
     void operator -= (const char a){this->pVar->minus(a);}
     void operator -= (const char* a){this->pVar->minus(a);}
-    void operator -= (const string a){this->pVar->minus(a);}
+    void operator -= (const std::string a){this->pVar->minus(a);}
     void operator -= (const double a){this->pVar->minus(a);}
     void operator -= (_var &a);
     _var operator - (const int a){
@@ -127,7 +128,7 @@ class _var{
         temp -= a;
         return temp;
     }
-    _var operator - (const string a){
+    _var operator - (const std::string a){
         _var temp;
         temp = *this;
         temp -= a;
@@ -201,7 +202,7 @@ class _var{
 
     operator int() const;
     operator char() const;
-    friend string str(_var x);
+    friend std::string str(_var x);
     operator double() const;
     friend L_INT lint(_var x);
 };
@@ -239,15 +240,15 @@ class Char:public _var{
 
 class Str:public _var{
     private:
-        string value;
+        std::string value;
     public:
-        Str(string str){value = str;}
+        Str(std::string str){value = str;}
         Str(char* str){value = str;}
-        string sgetValue(){return value;}
-        void add(string i){value += i;}
+        std::string sgetValue(){return value;}
+        void add(std::string i){value += i;}
         void add(char i){value += i;}
         void add(char* i){value += i;}
-        void add(int i){value += to_string(i);}
+        void add(int i){value += std::to_string(i);}
 };
 
 class Float:public _var{
@@ -296,7 +297,7 @@ bool _var::operator = (const char &s){
     return true;
 }
 
-bool _var::operator = (const string &str){
+bool _var::operator = (const std::string &str){
     if(pVar != NULL){
         delete pVar;
         pVar = NULL;
@@ -326,7 +327,7 @@ bool _var::operator = (const double &d){
     return true;
 }
 
-ostream & operator << (ostream& output,_var x) {
+std::ostream & operator << (std::ostream& output,_var x) {
     switch (x.getType())
     {
     case UNDEFINE:
@@ -503,7 +504,7 @@ _var::operator char() const{
     else return 0;
 }
 
-string str(_var x){
+std::string str(_var x){
     if(x.vtype == STR){
         return x.pVar->sgetValue();
     }
@@ -511,15 +512,15 @@ string str(_var x){
         return x.pVar->igetValue().tostr();
     }
     else if(x.vtype == CHAR){
-        string temp;
+        std::string temp;
         temp += x.pVar->cgetValue();
         return temp;
     }
     else if(x.vtype == FLOAT){
-        return to_string(x.pVar->fgetValue());
+        return std::to_string(x.pVar->fgetValue());
     }
     else{
-        string roger;
+        std::string roger;
         return roger;
     }
 }

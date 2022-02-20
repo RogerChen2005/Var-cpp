@@ -11,10 +11,10 @@ And plenty of functions is waiting to be added.
 
 ## How To Use
 
-First you should include the var.h file you download.
+First you should include the var.hpp file you download.
 
 ```c++
-#include "var.h"
+#include "var.hpp"
 ```
 
 Then use "var [variable name] " to declare variables
@@ -30,20 +30,24 @@ a = a * 1;
 b = b + "str";//Example
 ```
 
-Use int() , char() , str() , lint() , double() to transfer variables to another type
+Use int() , char() , str() , lint() , double() to transfer variables to another type //Disabled currently because of bugs.
 
 ```c++
 a = str(a);
 int temp = 123456789;
-a = lint(temp);
+a = L_INT(temp);
 ```
 
-Input by a function input()
+Input by a c-like function input()
 
 ```c++
-input("%d%s%f",a,b,c);
-cin >> b;
-//Tips:If you use cin to input, the default type of the variable would be string.
+input("%d%s%f",$(a),$(b),$(c));
+/*
+	%d:Integer
+	%s:String
+	%f:Float(double)
+	%c:Character
+*/
 ```
 
 Output by cout
@@ -55,16 +59,16 @@ cout << a << b << c << endl;
 Stored as an array, subscripts can even be strings
 
 ```c++
-var a = Array();
+var a = Array(3);//Array length = 3
 a[1] = 0;
 a[2] = "str";
 a[3] = 'c';
-a["str"] = "RogerChen233";
+//a["str"] = "RogerChen233";
 cout << a << endl;
 /*
 Output:
-[0,str,c]
-["str" = RogerChen233]
+[0,"str",c]
+//["str" = RogerChen233]
 */
 ```
 

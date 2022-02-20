@@ -1,4 +1,5 @@
 #include "_var.hpp"
+#include <stdarg.h>
 
 #ifndef VAR_HPP
 #define VAR_HPP
@@ -29,7 +30,7 @@ class var{
         */
         var(){
             data = new _var;
-            Len = 0;
+            Len = 1;
         }
         var(Array ary){
             data = new _var[ary.len];
@@ -66,6 +67,9 @@ class var{
             delete[] data;
             data = tmp;
             data[Len-1] = _value;
+        }
+        _var *get(){
+            return data;
         }
 
         /*
@@ -204,8 +208,8 @@ var operator % (dType x, var &y) {
 
 //Output by cout
 //使用cout输出
-ostream & (*out[2])(ostream &os,var &a) = {
-    [](ostream &os,var &a) -> ostream &{
+std::ostream & (*out[2])(std::ostream &os,var &a) = {
+    [](std::ostream &os,var &a) -> std::ostream &{
         os << "[";
         int length = a.len();
         _var *cur = a.begin();
@@ -219,14 +223,75 @@ ostream & (*out[2])(ostream &os,var &a) = {
         os << "]";
         return os;
     },
-    [](ostream &os,var &a) -> ostream &{
+    [](std::ostream &os,var &a) -> std::ostream &{
         os << *a.begin();
         return os;
     }
 };
 
-ostream & operator << (ostream &os,var &x){
+std::ostream & operator << (std::ostream &os,var &x){
     return out[x.len() == 1](os,x);
+}
+
+namespace Var
+{
+    bool check(char s){
+        if(s >= 'a' && s <= 'z'){
+            return true;
+        }
+        else return false;
+    }
+} // namespace Var
+
+#define $(x) x.get()
+
+void input(const char* format,...){
+    va_list ap;
+    va_start(ap,format);
+    _var* value;
+    int len = strlen(format);
+    int type;
+    for(int i = 0;i < len;i++){
+        value = va_arg(ap,_var*);
+        if(format[i] == '%'){
+            i++;
+            while(Var::check(format[i] == false)){
+                i++;
+            }
+            switch (format[i])
+            {
+            case 'd':
+                {L_INT dtemp;
+                std::cin >> dtemp;
+                *value = dtemp;
+                break;}
+            case 'f':
+                {double ftemp;
+                scanf("%lf",&ftemp);
+                *value = ftemp;
+                break;}
+            case 's':
+                {std::string stemp;
+                std::cin >> stemp;
+                *value = stemp;
+                break;}
+            case 'c':
+                {char ctemp;
+                scanf("%c",&ctemp);
+                *value = ctemp;
+                break;}
+            default:
+                break;
+            }
+        }
+    }
+    va_end(ap);
+}
+
+std::string input(){
+    std::string temp;
+    std::cin >>temp;
+    return temp;
 }
 
 #endif
