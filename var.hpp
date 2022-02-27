@@ -2,9 +2,9 @@
 #include <cstdlib>
 #include <cmath>
 #include <cstdio>
+#include <string>
 #include <iostream>
 #include <stdarg.h>
-#include <string>
 
 #ifndef CBIGNUM_H
 #define CBIGNUM_H
@@ -54,7 +54,7 @@ void add(char *Dest,char *str1,char *str2){ //只能正数相加
     int len1=strlen(str1);
     int len2=strlen(str2);
     int need = max(len1,len2)+2;
-    char *str = new char(need);
+    char *str = new char[need];
     memset(str,'0',need);
     str[need-1] = 0;
     int temp = 0,cf = 0,cnt = max(len1,len2);
@@ -74,6 +74,7 @@ void add(char *Dest,char *str1,char *str2){ //只能正数相加
     Dest = (char*)realloc(Dest, sizeof(char)*(max(len1,len2) + 2));
     int length = strlen(str) - pos;
     memcpy(Dest,str + pos,length);
+    delete[] str;
     Dest[length] = 0;
 }
 
@@ -81,7 +82,7 @@ void add_NOfree(char *Dest,char *str1,char *str2){ //需要保证空间充足
     int len1=strlen(str1);
     int len2=strlen(str2);
     int need = max(len1,len2)+2;
-    char *str = new char(need);
+    char *str = new char[need];
     memset(str,'0',need);
     str[need - 1] = 0;
     int temp = 0,cf = 0,cnt = max(len1,len2);
@@ -100,12 +101,13 @@ void add_NOfree(char *Dest,char *str1,char *str2){ //需要保证空间充足
     }
     int length = strlen(str) - pos;
     memcpy(Dest,str + pos,length);
+    delete str;
     Dest[length] = 0;
 }
 
 void sub(char* Dest,char* str1,char* str2){//只能大数减小数
     int len1 = strlen(str1),len2 = strlen(str2);
-    char *str = new char(len1 + 1);
+    char *str = new char[len1 + 1];
     memset(str,'0',len1 + 1);
     str[len1] = 0;
     int tmp = len1-len2;
@@ -135,12 +137,13 @@ void sub(char* Dest,char* str1,char* str2){//只能大数减小数
     Dest = (char*)realloc(Dest,len1+1);
     int length = strlen(str) - pos;
     memcpy(Dest,str + pos,length);
+    delete str;
     Dest[length] = 0;
 }
 
 void sub_NOfree(char* Dest,char* str1,char* str2){//需要保证空间充足
     int len1 = strlen(str1),len2 = strlen(str2);
-    char *str = new char(len1 + 1);
+    char *str = new char[len1 + 1];
     memset(str,'0',len1 + 1);
     str[len1] = 0;
     int tmp = len1-len2;
@@ -169,18 +172,19 @@ void sub_NOfree(char* Dest,char* str1,char* str2){//需要保证空间充足
     }
     int length = strlen(str) - pos;
     memcpy(Dest,str + pos,length);
+    delete[] str;
     Dest[length] = 0;
 }
 
 void mul(char* Dest,char* str1,char* str2){ //两个正数相乘
     int len1=strlen(str1),len2=strlen(str2),pos = 0;
-    char *str = new char(len1 + len2+1);
+    char *str = new char[len1 + len2+1];
     memset(str,'0',len1 + len2+1);
     str[len1 + len2] = 0;
-    char *tempstr = new char(len1 + len2 + 2);
+    char *tempstr = new char[len1 + len2 + 2];
     for(int i = len2 - 1;i >= 0;i--){
         int cnt = len1;
-        memset(tempstr,'0',sizeof(tempstr));
+        memset(tempstr,'0',len1 + len2-i+1);
         int temp=str2[i]-'0',t=0,cf=0;
         tempstr[len1+len2-i] = 0;
         if(temp!=0){
@@ -199,18 +203,20 @@ void mul(char* Dest,char* str1,char* str2){ //两个正数相乘
     Dest = (char*)realloc(Dest,sizeof(char)*(len1 + len2 + 1));
     int length = strlen(str) - pos;
     memcpy(Dest,str + pos,length);
+    delete[] str;
+    delete[] tempstr;
     Dest[length] = 0;
 }
 
 void mul_NOfree(char* Dest,char* str1,char* str2){ //两个正数相乘
     int len1=strlen(str1),len2=strlen(str2),pos = 0;
-    char *str = new char(len1 + len2+1);
+    char *str = new char[len1 + len2+1];
     memset(str,'0',len1 + len2+1);
     str[len1 + len2] = 0;
-    char *tempstr = new char(len1 + len2 + 2);
+    char *tempstr = new char[len1 + len2 + 2];
     for(int i = len2 - 1;i >= 0;i--){
         int cnt = len1;
-        memset(tempstr,'0',sizeof(tempstr));
+        memset(tempstr,'0',len1 + len2-i+1);
         int temp=str2[i]-'0',t=0,cf=0;
         tempstr[len1+len2-i] = 0;
         if(temp!=0){
@@ -228,6 +234,8 @@ void mul_NOfree(char* Dest,char* str1,char* str2){ //两个正数相乘
     }
     int length = strlen(str) - pos;
     memcpy(Dest,str + pos,length);
+    delete[] str;
+    delete[] tempstr;
     Dest[length] = 0;
 }
 
@@ -238,16 +246,15 @@ void div(char* Dest,char* str1,char* str2){
         Dest[0] = '0';Dest[1] = 0;
         return;
     }
-    char* ans = new char(len1+2),*yu = new char(len2+2);
-    char* str = new char(len2+2),*temp = new char(len2+2);
+    char* ans = new char[len1+3],*yu = new char[len2+3];
+    char* str = new char[len2+3],*temp = new char[len2+3];
     memset(ans,0,sizeof(ans));
     memset(yu,0,sizeof(yu));
     memset(str,0,sizeof(str));
     memset(temp,0,sizeof(temp));
-    int cnt = 0,ans_cur = 0,temp_cur;
+    int cnt = 0,ans_cur = 0,temp_cur = 0;
     while(cnt <= len1 - 1){
         int ylen = strlen(yu);
-        //memset(temp,0,sizeof(temp));
         memcpy(temp,yu,ylen);temp[ylen] = 0;temp_cur = ylen;
         bool flag = false,jie = false,first = false;
         for(int i = 0;i < len2 - ylen;i++){
@@ -310,6 +317,94 @@ void div(char* Dest,char* str1,char* str2){
     Dest = (char*)realloc(Dest,sizeof(char)*(len1 + 3));
     int length = strlen(ans) - pos;
     memcpy(Dest,ans + pos,length);
+    delete[] str;
+    delete[] ans;
+    delete[] yu;
+    delete[] temp;
+    Dest[length] = 0;
+}
+
+void div_NOfree(char* Dest,char* str1,char* str2){
+    int len1 = strlen(str1),len2 = strlen(str2);
+    if(comp(str1,len1,str2,len2) == _SMALL){
+        Dest = (char*)realloc(Dest,sizeof(char)*2);
+        Dest[0] = '0';Dest[1] = 0;
+        return;
+    }
+    char* ans = new char[len1+3],*yu = new char[len2+3];
+    char* str = new char[len2+3],*temp = new char[len2+3];
+    memset(ans,0,sizeof(ans));
+    memset(yu,0,sizeof(yu));
+    memset(str,0,sizeof(str));
+    memset(temp,0,sizeof(temp));
+    int cnt = 0,ans_cur = 0,temp_cur = 0;
+    while(cnt <= len1 - 1){
+        int ylen = strlen(yu);
+        memcpy(temp,yu,ylen);temp[ylen] = 0;temp_cur = ylen;
+        bool flag = false,jie = false,first = false;
+        for(int i = 0;i < len2 - ylen;i++){
+            jie = true;
+            if(cnt > len1 - 1){
+                ans[ans_cur] = '0';ans_cur++;
+                flag = true;
+                break;
+            }
+            temp[temp_cur] = str1[cnt];temp_cur++;temp[temp_cur] = 0;
+            if(first){
+                ans[ans_cur] = '0';ans_cur++;
+            }
+            else first = true;
+            cnt++;
+        }
+        if(flag){
+            break;
+        }
+        int f1 = str2[0] - '0',f2 = temp[0] - '0';
+        if(f1 > f2 || comp(str2,temp) == _BIG){
+            if(cnt > len1 - 1){
+                int leng = strlen(temp);
+                ans[ans_cur] = '0';ans_cur++;
+                break;
+            }
+            if(jie){ans[ans_cur] = '0';ans_cur++;}
+            temp[temp_cur] = str1[cnt];temp_cur++;temp[temp_cur] = 0;
+            f2 = f2 * 10 + temp[1] - '0';
+            cnt++;
+        }
+        int s = f2 / f1;
+        while(true){
+            char ss[3];
+            sprintf(ss,"%d",s);
+            mul_NOfree(str,str2,ss);
+            if(comp(temp,str) == _SMALL){
+                s -= 1;
+                continue;
+            }
+            else{
+                sub_NOfree(yu,temp,str);
+                if(comp(str2,yu) == _BIG){
+                    break;
+                }
+            }
+        }
+        ans[ans_cur] = char(s + '0');ans_cur++;
+        if(yu[0] == '0'){
+            while(str1[cnt] == '0'){
+                cnt++;
+                ans[ans_cur] = '0';ans_cur++;
+            }
+        }
+    }
+    int pos = 0;
+    while(ans[pos] == '0'){
+        pos++;
+    }
+    int length = strlen(ans) - pos;
+    memcpy(Dest,ans + pos,length);
+    delete[] str;
+    delete[] ans;
+    delete[] yu;
+    delete[] temp;
     Dest[length] = 0;
 }
 
@@ -322,7 +417,7 @@ void sur(char* Dest,char* str1,char* str2){
         Dest[length] = 0;
         return;
     }
-    char *yu = new char(len2+2),*str = new char(len2+2),*temp = new char(len2+2);
+    char *yu = new char[len2+2],*str = new char[len2+2],*temp = new char[len2+2];
     memset(yu,0,sizeof(yu));
     memset(str,0,sizeof(str));
     memset(temp,0,sizeof(temp));
@@ -369,6 +464,9 @@ void sur(char* Dest,char* str1,char* str2){
     int length = strlen(yu);
     memcpy(Dest,yu,length);
     Dest[length] = 0;
+    delete[] str;
+    delete[] yu;
+    delete[] temp;
 }
 }
 
@@ -449,7 +547,7 @@ class L_INT{
             value = itostr(x,length);
             return true;
         }
-        friend std::ostream & operator << (std::ostream & output,L_INT &x);
+        friend std::ostream & operator << (std::ostream & output,L_INT x);
         friend std::istream & operator >> (std::istream & output,L_INT x);
         friend int comp(L_INT *x,L_INT *y);
         bool operator < (L_INT &y){return comp(this,&y) == _SMALL;}
@@ -457,16 +555,16 @@ class L_INT{
         bool operator >= (L_INT &y){return !(comp(this,&y) == _SMALL);}
         bool operator <= (L_INT &y){return !(comp(this,&y) == _BIG);}
         friend void add(L_INT *str1,L_INT *str2);
-        L_INT operator + (L_INT &x){L_INT temp;temp = *this;temp += x;return temp;}
-        void operator += (L_INT &x);
-        L_INT operator - (L_INT &x){L_INT temp = *this;temp -= x;return temp;}
-        void operator -= (L_INT &x);
-        L_INT operator * (L_INT &x){L_INT temp = *this;temp *= x;return temp;}
-        void operator *= (L_INT &x);
-        L_INT operator / (L_INT &x){L_INT temp = *this;temp /= x;return temp;}
-        void operator /= (L_INT &x);
-        L_INT operator % (L_INT &x){L_INT temp = *this;temp %= x;return temp;}
-        void operator %= (L_INT &x);
+        L_INT operator + (L_INT x){L_INT temp;temp = *this;temp += x;return temp;}
+        void operator += (L_INT x);
+        L_INT operator - (L_INT x){L_INT temp = *this;temp -= x;return temp;}
+        void operator -= (L_INT x);
+        L_INT operator * (L_INT x){L_INT temp = *this;temp *= x;return temp;}
+        void operator *= (L_INT x);
+        L_INT operator / (L_INT x){L_INT temp = *this;temp /= x;return temp;}
+        void operator /= (L_INT x);
+        L_INT operator % (L_INT x){L_INT temp = *this;temp %= x;return temp;}
+        void operator %= (L_INT x);
         L_INT operator + (int x){L_INT temp = *this;temp += x;return temp;}
         void operator += (int x){L_INT temp = x;*this += temp;};
         L_INT operator - (int x){L_INT temp = *this;temp -= x;return temp;}
@@ -502,9 +600,10 @@ class L_INT{
         } 
 };
 
-void L_INT::operator += (L_INT &x){
+void L_INT::operator += (L_INT x){
+    char *temp = new char[bignum::max(this->length,x.length)+2];
     if(this->posTive == x.posTive){
-        bignum::add(this->value,this->value,x.value);return;
+        bignum::add_NOfree(temp,this->value,x.value);
     }
     else{
         int CHECK = bignum::comp(this->value,this->length,x.value,x.length);
@@ -512,32 +611,41 @@ void L_INT::operator += (L_INT &x){
             SetValue0();return;
         }
         else if(CHECK == _BIG){
-            bignum::sub(this->value,this->value,x.value);return;
+            bignum::sub_NOfree(temp,this->value,x.value);
         }
         else{
             this->posTive = !this->posTive;
-            bignum::sub(this->value,x.value,this->value);return;
+            bignum::sub_NOfree(temp,x.value,this->value);
         }
     }
-    length = strlen(value);
+    length = strlen(temp);
+    this->value = (char*)realloc(this->value,length + 1);
+    memcpy(this->value,temp,length);
+    this->value[length] = 0;
+    delete[] temp;
 }
 
-void L_INT::operator -= (L_INT &x){
+void L_INT::operator -= (L_INT x){
     x.posTive = !x.posTive;
     *this += x;
 }
 
-void L_INT::operator *= (L_INT &x){
+void L_INT::operator *= (L_INT x){
     if(this->value == "0" || x.value == "0"){
         SetValue0();return;
     }
+    char *temp = new char[this->length + x.length+1];
     this->posTive ^= x.posTive;
     this->posTive = !this->posTive;
-    bignum::mul(this->value,this->value,x.value);
-    length = strlen(value);
+    bignum::mul_NOfree(temp,this->value,x.value);
+    length = strlen(temp);
+    this->value = (char*)realloc(this->value,length + 1);
+    memcpy(this->value,temp,length);
+    this->value[length] = 0;
+    delete[] temp;
 }
 
-void L_INT::operator /= (L_INT &x){
+void L_INT::operator /= (L_INT x){
     if(x.value == "0"){
         throw "INFINATE!";
         return;
@@ -545,13 +653,18 @@ void L_INT::operator /= (L_INT &x){
     if(this->value == "0"){
         SetValue0();return;
     }
-    bignum::div(this->value,this->value,x.value);
+    char *temp = new char[this->length + 2];
+    bignum::div_NOfree(temp,this->value,x.value);
     this->posTive ^= x.posTive;
     this->posTive = !this->posTive;
-    length = strlen(value);
+    length = strlen(temp);
+    this->value = (char*)realloc(this->value,length + 1);
+    memcpy(this->value,temp,length);
+    this->value[length] = 0;
+    delete[] temp;
 }
 
-void L_INT::operator %= (L_INT &x){
+void L_INT::operator %= (L_INT x){
     if(x.value == "0"){
         throw "INFINATE!";
         return;
@@ -559,8 +672,13 @@ void L_INT::operator %= (L_INT &x){
     if(this->value == "0"||strcmp(x.value,"1") == 0){
         SetValue0();return;
     }
-    bignum::sur(this->value,this->value,x.value);
-    length = strlen(value);
+    char *temp = new char[x.length+2];
+    bignum::sur(temp,this->value,x.value);
+    length = strlen(temp);
+    this->value = (char*)realloc(this->value,length + 1);
+    memcpy(this->value,temp,length);
+    this->value[length] = 0;
+    delete[] temp;
 }
 
 int comp(L_INT *x,L_INT *y){
@@ -574,7 +692,7 @@ int comp(L_INT *x,L_INT *y){
     return _SAME;
 }
 
-std::ostream & operator << (std::ostream & output,L_INT &x){
+std::ostream & operator << (std::ostream & output,L_INT x){
     if(!x.posTive){output << "-";}
     output << x.value;
     return output;
@@ -610,6 +728,7 @@ class _var{
         short vtype;
     public:
     _var *pVar;
+    //void get(_var &a);
     _var* get(){
         return this;
     }
@@ -621,6 +740,7 @@ class _var{
     _var(const double i){vtype = FLOAT;pVar = NULL;*this = i;}
     _var(_var* i);
     virtual void changeType(short i){vtype = i;}
+    //void add(_var &a);
     virtual void add(int i){throw "Can't Calculate";};
     virtual void add(char i){throw "Can't Calculate";};
     virtual void add(char* i){throw "Can't Calculate";};
@@ -657,6 +777,11 @@ class _var{
     bool operator = (L_INT a);
     template<typename dType>
     void operator += (const dType a){this->pVar->add(a);}
+    // void operator += (const int a){this->pVar->add(a);}
+    // void operator += (const char a){this->pVar->add(a);}
+    // void operator += (const char* &a){this->pVar->add(a);}
+    // void operator += (const string a){this->pVar->add(a);}
+    // void operator += (const double a){this->pVar->add(a);}
     void operator += (_var &a);
     _var operator + (const int a){
         _var temp;

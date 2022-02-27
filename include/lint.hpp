@@ -79,7 +79,7 @@ class L_INT{
             value = itostr(x,length);
             return true;
         }
-        friend std::ostream & operator << (std::ostream & output,L_INT &x);
+        friend std::ostream & operator << (std::ostream & output,L_INT x);
         friend std::istream & operator >> (std::istream & output,L_INT x);
         friend int comp(L_INT *x,L_INT *y);
         bool operator < (L_INT &y){return comp(this,&y) == _SMALL;}
@@ -87,16 +87,16 @@ class L_INT{
         bool operator >= (L_INT &y){return !(comp(this,&y) == _SMALL);}
         bool operator <= (L_INT &y){return !(comp(this,&y) == _BIG);}
         friend void add(L_INT *str1,L_INT *str2);
-        L_INT operator + (L_INT &x){L_INT temp;temp = *this;temp += x;return temp;}
-        void operator += (L_INT &x);
-        L_INT operator - (L_INT &x){L_INT temp = *this;temp -= x;return temp;}
-        void operator -= (L_INT &x);
-        L_INT operator * (L_INT &x){L_INT temp = *this;temp *= x;return temp;}
-        void operator *= (L_INT &x);
-        L_INT operator / (L_INT &x){L_INT temp = *this;temp /= x;return temp;}
-        void operator /= (L_INT &x);
-        L_INT operator % (L_INT &x){L_INT temp = *this;temp %= x;return temp;}
-        void operator %= (L_INT &x);
+        L_INT operator + (L_INT x){L_INT temp;temp = *this;temp += x;return temp;}
+        void operator += (L_INT x);
+        L_INT operator - (L_INT x){L_INT temp = *this;temp -= x;return temp;}
+        void operator -= (L_INT x);
+        L_INT operator * (L_INT x){L_INT temp = *this;temp *= x;return temp;}
+        void operator *= (L_INT x);
+        L_INT operator / (L_INT x){L_INT temp = *this;temp /= x;return temp;}
+        void operator /= (L_INT x);
+        L_INT operator % (L_INT x){L_INT temp = *this;temp %= x;return temp;}
+        void operator %= (L_INT x);
         L_INT operator + (int x){L_INT temp = *this;temp += x;return temp;}
         void operator += (int x){L_INT temp = x;*this += temp;};
         L_INT operator - (int x){L_INT temp = *this;temp -= x;return temp;}
@@ -132,9 +132,10 @@ class L_INT{
         } 
 };
 
-void L_INT::operator += (L_INT &x){
+void L_INT::operator += (L_INT x){
+    char *temp = new char[bignum::max(this->length,x.length)+2];
     if(this->posTive == x.posTive){
-        bignum::add(this->value,this->value,x.value);return;
+        bignum::add_NOfree(temp,this->value,x.value);
     }
     else{
         int CHECK = bignum::comp(this->value,this->length,x.value,x.length);
@@ -142,32 +143,41 @@ void L_INT::operator += (L_INT &x){
             SetValue0();return;
         }
         else if(CHECK == _BIG){
-            bignum::sub(this->value,this->value,x.value);return;
+            bignum::sub_NOfree(temp,this->value,x.value);
         }
         else{
             this->posTive = !this->posTive;
-            bignum::sub(this->value,x.value,this->value);return;
+            bignum::sub_NOfree(temp,x.value,this->value);
         }
     }
-    length = strlen(value);
+    length = strlen(temp);
+    this->value = (char*)realloc(this->value,length + 1);
+    memcpy(this->value,temp,length);
+    this->value[length] = 0;
+    delete[] temp;
 }
 
-void L_INT::operator -= (L_INT &x){
+void L_INT::operator -= (L_INT x){
     x.posTive = !x.posTive;
     *this += x;
 }
 
-void L_INT::operator *= (L_INT &x){
+void L_INT::operator *= (L_INT x){
     if(this->value == "0" || x.value == "0"){
         SetValue0();return;
     }
+    char *temp = new char[this->length + x.length+1];
     this->posTive ^= x.posTive;
     this->posTive = !this->posTive;
-    bignum::mul(this->value,this->value,x.value);
-    length = strlen(value);
+    bignum::mul_NOfree(temp,this->value,x.value);
+    length = strlen(temp);
+    this->value = (char*)realloc(this->value,length + 1);
+    memcpy(this->value,temp,length);
+    this->value[length] = 0;
+    delete[] temp;
 }
 
-void L_INT::operator /= (L_INT &x){
+void L_INT::operator /= (L_INT x){
     if(x.value == "0"){
         throw "INFINATE!";
         return;
@@ -175,13 +185,18 @@ void L_INT::operator /= (L_INT &x){
     if(this->value == "0"){
         SetValue0();return;
     }
-    bignum::div(this->value,this->value,x.value);
+    char *temp = new char[this->length + 2];
+    bignum::div_NOfree(temp,this->value,x.value);
     this->posTive ^= x.posTive;
     this->posTive = !this->posTive;
-    length = strlen(value);
+    length = strlen(temp);
+    this->value = (char*)realloc(this->value,length + 1);
+    memcpy(this->value,temp,length);
+    this->value[length] = 0;
+    delete[] temp;
 }
 
-void L_INT::operator %= (L_INT &x){
+void L_INT::operator %= (L_INT x){
     if(x.value == "0"){
         throw "INFINATE!";
         return;
@@ -189,8 +204,13 @@ void L_INT::operator %= (L_INT &x){
     if(this->value == "0"||strcmp(x.value,"1") == 0){
         SetValue0();return;
     }
-    bignum::sur(this->value,this->value,x.value);
-    length = strlen(value);
+    char *temp = new char[x.length+2];
+    bignum::sur(temp,this->value,x.value);
+    length = strlen(temp);
+    this->value = (char*)realloc(this->value,length + 1);
+    memcpy(this->value,temp,length);
+    this->value[length] = 0;
+    delete[] temp;
 }
 
 int comp(L_INT *x,L_INT *y){
@@ -204,7 +224,7 @@ int comp(L_INT *x,L_INT *y){
     return _SAME;
 }
 
-std::ostream & operator << (std::ostream & output,L_INT &x){
+std::ostream & operator << (std::ostream & output,L_INT x){
     if(!x.posTive){output << "-";}
     output << x.value;
     return output;
